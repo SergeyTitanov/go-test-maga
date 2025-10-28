@@ -117,7 +117,7 @@ func main() {
 			addError(specNode.Line, "spec.containers is required")
 		} else {
 			// spec.os (if present, must be "linux" or "windows")
-			if osKey, osVal := findMapKey(specNode, "os"); osVal != nil {
+			if _, osVal := findMapKey(specNode, "os"); osVal != nil {
 				// Only valid if "linux" or "windows"
 				if osVal.Value != "linux" && osVal.Value != "windows" {
 					addError(osVal.Line, "spec.os must be 'linux' or 'windows'")
@@ -210,7 +210,7 @@ func main() {
 												// Non-integer already handled above
 											}
 										}
-										if protoKey, protoVal := findMapKey(portItem, "protocol"); protoVal != nil {
+										if _, protoVal := findMapKey(portItem, "protocol"); protoVal != nil {
 											// Protocol given, must be TCP or UDP
 											if protoVal.Value != "TCP" && protoVal.Value != "UDP" {
 												addError(protoVal.Line, "protocol must be either TCP or UDP")
