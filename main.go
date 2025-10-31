@@ -83,10 +83,22 @@ func findMapKey(node *yaml.Node, key string) *yaml.Node {
 func validateOS(specNode *yaml.Node, filename string) []string {
 	var errs []string
 	osNode := findMapKey(specNode, "os")
-	if osNode != nil && osNode.Kind == yaml.ScalarNode {
-		val := osNode.Value
-		if val != "linux" && val != "windows" {
-			errs = append(errs, fmt.Sprintf("%s:%d os has unsupported value '%s'", filename, osNode.Line, val))
+	if osNode != nil {
+		if osNode.Kind == yaml.ScalarNode {
+			if osNode.Value != "linux" && osNode.Value != "windows" {
+				errs = append(errs, fmt.Sprintf("%s:%d os has unsupported value '%s'", filename, osNode.Line, osNode.Value))
+			}
+		} else if osNode.Kind == yaml.MappingNode {
+			nameNode := findMapKey(osNode, "name")
+			if nameNode == nil {
+				errs = append(errs, fmt.Sprintf("%s:%d os.name is required", filename, osNode.Line))
+			} else if nameNode.Kind != yaml.ScalarNode {
+				errs = append(errs, fmt.Sprintf("%s:%d os.name must be string", filename, nameNode.Line))
+			} else if nameNode.Value != "linux" && nameNode.Value != "windows" {
+				errs = append(errs, fmt.Sprintf("%s:%d os has unsupported value '%s'", filename, nameNode.Line, nameNode.Value))
+			}
+		} else {
+			errs = append(errs, fmt.Sprintf("%s:%d os must be string or object", filename, osNode.Line))
 		}
 	}
 	return errs
