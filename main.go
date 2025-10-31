@@ -115,12 +115,14 @@ func validateCPU(contNode *yaml.Node, filename string) []string {
 	var errs []string
 	resNode := findMapKey(contNode, "resources")
 	if resNode != nil && resNode.Kind == yaml.MappingNode {
-		reqNode := findMapKey(resNode, "requests")
-		if reqNode != nil && reqNode.Kind == yaml.MappingNode {
-			cpuNode := findMapKey(reqNode, "cpu")
-			if cpuNode != nil && cpuNode.Kind == yaml.ScalarNode {
-				if cpuNode.Tag != "!!int" {
-					errs = append(errs, fmt.Sprintf("%s:%d cpu must be int", filename, cpuNode.Line))
+		for _, resType := range []string{"limits", "requests"} {
+			section := findMapKey(resNode, resType)
+			if section != nil && section.Kind == yaml.MappingNode {
+				cpuNode := findMapKey(section, "cpu")
+				if cpuNode != nil && cpuNode.Kind == yaml.ScalarNode {
+					if cpuNode.Tag != "!!int" {
+						errs = append(errs, fmt.Sprintf("%s:%d cpu must be int", filename, cpuNode.Line))
+					}
 				}
 			}
 		}
